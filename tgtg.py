@@ -80,7 +80,7 @@ def sendEmail(data):
 
 print("""
 --------------------------------------------------
-                Too Good To Good
+                 Too Good To Go
            Auto searcher & Email notifier 
 --------------------------------------------------
 Recieve email updates of your favourite tgtg venues
