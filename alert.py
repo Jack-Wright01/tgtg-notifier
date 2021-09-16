@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from email.message import EmailMessage
 from time import sleep
+import sys
 
 ######################################
 # E-Mail notifier for TooGoodToGo updates
@@ -59,6 +60,7 @@ def getItems(initialCache=False):
         }
 
         if (not initialCache):
+            print(f"New magic bag | {data['name']} | {data['price']}")
             sendEmail(data)
         
         cachedItems.append(item_id)
@@ -91,10 +93,16 @@ to Anthony Hivert (@ahivert_) for the underlying API
 
             Last updated 08 Sept 2021
 --------------------------------------------------
+         New listings are displayed below
+--------------------------------------------------
 """)
 
 getItems(initialCache=True) #Avoids mass email spam when first startup
 
-while True:
-    getItems(initialCache=False)
-    sleep(REFRESH_INTERVAL)
+def main():
+    while True:
+        getItems(initialCache=False)
+        sleep(REFRESH_INTERVAL)
+
+main()
+    
