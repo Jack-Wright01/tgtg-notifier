@@ -79,8 +79,7 @@ def sendEmail(data):
 
         smtp.send_message(msg)
 
-print("""
---------------------------------------------------
+print("""--------------------------------------------------
                  Too Good To Go
            Auto searcher & Email notifier 
 --------------------------------------------------
@@ -90,11 +89,10 @@ faster and beat the crowd at getting the best bargain
 Developed by Jack Wright (@Jack_Wright10) with credit
 to Anthony Hivert (@ahivert_) for the underlying API
 
-            Last updated 08 Sept 2021
+            Last updated 16 Sept 2021
 --------------------------------------------------
          New listings are displayed below
---------------------------------------------------
-""")
+--------------------------------------------------""")
 
 getItems(initialCache=True) #Avoids mass email spam when first startup
 
