@@ -6,7 +6,6 @@ import os
 from dotenv import load_dotenv
 from email.message import EmailMessage
 from time import sleep
-import sys
 
 ######################################
 # E-Mail notifier for TooGoodToGo updates
