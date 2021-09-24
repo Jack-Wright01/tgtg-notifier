@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from email.message import EmailMessage
 from time import sleep
-from win10toast import ToastNotifier
+import winsound
 from datetime import datetime
 
 ######################################
@@ -30,7 +30,7 @@ client = TgtgClient(email=HOST_EMAIL, password=HOST_PW)
 
 cachedItems = []
 
-def getItems(mail=False, win10Alert=False, printToConsole=False):
+def getItems(mail=False, alert=False, printToConsole=False):
     items = client.get_items()
     for child in items:
         item = child['item']
@@ -68,8 +68,8 @@ def getItems(mail=False, win10Alert=False, printToConsole=False):
             currDate = today.strftime("%b-%d-%Y %H:%M:%S").replace(" ", " @ ")
             print(f"{currDate} | New magic bag | {data['name']} | {data['price']}")
 
-        if (win10Alert):
-            ping(data)
+        if (alert):
+            ping()
         
         cachedItems.append(item_id)
 
@@ -88,15 +88,8 @@ def sendEmail(data):
 
         smtp.send_message(msg)
 
-def ping(data):
-    """Windows 10 notification alert"""
-    toaster = ToastNotifier()
-    toaster.show_toast(
-        "New Magic Bag",
-        f"{data['name']} | {data['price']}",
-        icon_path="Burger.ico",
-        duration=5,
-    )
+def ping():
+    winsound.PlaySound("*", winsound.SND_ALIAS)
 
 print("""--------------------------------------------------
                  Too Good To Go
@@ -118,7 +111,7 @@ getItems() #Avoids mass email spam when first startup to get a cache of already 
 
 def main():
     while True:
-        getItems(mail=True, win10Alert=True, printToConsole=True)
+        getItems(mail=True, alert=True, printToConsole=True)
         sleep(REFRESH_INTERVAL)
 
 main()
