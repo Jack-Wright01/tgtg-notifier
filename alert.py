@@ -6,6 +6,8 @@ import os
 from dotenv import load_dotenv
 from email.message import EmailMessage
 from time import sleep
+from win10toast import ToastNotifier
+from datetime import datetime
 
 ######################################
 # E-Mail notifier for TooGoodToGo updates
@@ -22,13 +24,13 @@ HOST_PW = os.getenv('2G2G_PASSWORD')
 MAIL_PW = os.getenv('MAIL_PASSWORD')
 MAIL_TO = os.getenv('MAIL_TO')
 
-REFRESH_INTERVAL = 60 #Seconds
+REFRESH_INTERVAL = 30 #Seconds
 
 client = TgtgClient(email=HOST_EMAIL, password=HOST_PW)
 
 cachedItems = []
 
-def getItems(initialCache=False):
+def getItems(mail=False, win10Alert=False, printToConsole=False):
     items = client.get_items()
     for child in items:
         item = child['item']
@@ -58,9 +60,16 @@ def getItems(initialCache=False):
             #"logo": logo_address
         }
 
-        if (not initialCache):
-            print(f"New magic bag | {data['name']} | {data['price']}")
+        if (mail):
             sendEmail(data)
+
+        if (printToConsole):
+            today = datetime.now()
+            currDate = today.strftime("%b-%d-%Y %H:%M:%S").replace(" ", " @ ")
+            print(f"{currDate} | New magic bag | {data['name']} | {data['price']}")
+
+        if (win10Alert):
+            ping(data)
         
         cachedItems.append(item_id)
 
@@ -79,6 +88,16 @@ def sendEmail(data):
 
         smtp.send_message(msg)
 
+def ping(data):
+    """Windows 10 notification alert"""
+    toaster = ToastNotifier()
+    toaster.show_toast(
+        "New Magic Bag",
+        f"{data['name']} | {data['price']}",
+        icon_path="Burger.ico",
+        duration=5,
+    )
+
 print("""--------------------------------------------------
                  Too Good To Go
            Auto searcher & Email notifier 
@@ -94,11 +113,12 @@ to Anthony Hivert (@ahivert_) for the underlying API
          New listings are displayed below
 --------------------------------------------------""")
 
-getItems(initialCache=True) #Avoids mass email spam when first startup
+getItems() #Avoids mass email spam when first startup to get a cache of already existing items
+           #Doesn't include deals already on the app posted before script startup, but shouldn't be an issue if there is a high uptime
 
 def main():
     while True:
-        getItems(initialCache=False)
+        getItems(mail=True, win10Alert=True, printToConsole=True)
         sleep(REFRESH_INTERVAL)
 
 main()
