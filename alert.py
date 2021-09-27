@@ -111,7 +111,7 @@ getItems() #Avoids mass email spam when first startup to get a cache of already 
 
 def main():
     while True:
-        getItems(mail=True, alert=True, printToConsole=True)
+        getItems(mail=True, alert=False, printToConsole=True)
         sleep(REFRESH_INTERVAL)
 
 main()
