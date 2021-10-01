@@ -28,11 +28,16 @@ REFRESH_INTERVAL = 60 #Seconds
 
 client = TgtgClient(email=HOST_EMAIL, password=HOST_PW)
 
+cachedItems = []
+
 def getItems(mail=False, alert=False, printToConsole=False):
     items = client.get_items(with_stock_only=True)
     for child in items:
         item = child['item']
         store = child['store']
+        item_id = item['item_id']
+
+        if (item_id in cachedItems): return #Stops duplicate posts
 
         #Store
         store_name = store['store_name']
@@ -40,7 +45,6 @@ def getItems(mail=False, alert=False, printToConsole=False):
         address = store_location['address_line']
 
         #Item
-        item_id = item['item_id']
         price = item['price']
         currency = CurrencyCodes().get_symbol(price['code']) or "" #No symbol if failed to find symbol
         cost = "{:.2f}".format(price['minor_units'] / 100) #double decimal format
@@ -53,6 +57,8 @@ def getItems(mail=False, alert=False, printToConsole=False):
             "description": description,
             "price": currency + str(cost),
         }
+
+        cachedItems.append(item_id)
 
         if (mail):
             sendEmail(data)
@@ -100,7 +106,7 @@ to Anthony Hivert (@ahivert_) for the underlying API
 
 def main():
     while True:
-        getItems(mail=True, alert=False, printToConsole=True)
+        getItems(mail=True, alert=True, printToConsole=True)
         sleep(REFRESH_INTERVAL)
 
 main()
