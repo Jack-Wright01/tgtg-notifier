@@ -24,28 +24,23 @@ HOST_PW = os.getenv('2G2G_PASSWORD')
 MAIL_PW = os.getenv('MAIL_PASSWORD')
 MAIL_TO = os.getenv('MAIL_TO')
 
-REFRESH_INTERVAL = 30 #Seconds
+REFRESH_INTERVAL = 60 #Seconds
 
 client = TgtgClient(email=HOST_EMAIL, password=HOST_PW)
 
-cachedItems = []
-
 def getItems(mail=False, alert=False, printToConsole=False):
-    items = client.get_items()
+    items = client.get_items(with_stock_only=True)
     for child in items:
         item = child['item']
         store = child['store']
-        item_id = item['item_id']
-        if (item_id in cachedItems): return #Don't get item data if already fetched
 
         #Store
         store_name = store['store_name']
         store_location = store['store_location']['address']
         address = store_location['address_line']
-        #logo = store['logo_picture']
-        #logo_address = logo["current_url"]
 
         #Item
+        item_id = item['item_id']
         price = item['price']
         currency = CurrencyCodes().get_symbol(price['code']) or "" #No symbol if failed to find symbol
         cost = "{:.2f}".format(price['minor_units'] / 100) #double decimal format
@@ -57,7 +52,6 @@ def getItems(mail=False, alert=False, printToConsole=False):
             "address": address,
             "description": description,
             "price": currency + str(cost),
-            #"logo": logo_address
         }
 
         if (mail):
@@ -70,8 +64,6 @@ def getItems(mail=False, alert=False, printToConsole=False):
 
         if (alert):
             ping()
-        
-        cachedItems.append(item_id)
 
 def sendEmail(data):
     #debug terminal server
@@ -88,7 +80,7 @@ def sendEmail(data):
 
         smtp.send_message(msg)
 
-def ping():
+def ping(): #Optional default disabled
     winsound.PlaySound("*", winsound.SND_ALIAS)
 
 print("""--------------------------------------------------
@@ -101,17 +93,14 @@ faster and beat the crowd at getting the best bargain
 Developed by Jack Wright (@Jack_Wright10) with credit
 to Anthony Hivert (@ahivert_) for the underlying API
 
-            Last updated 16 Sept 2021
+            Last updated 01 Oct 2021
 --------------------------------------------------
          New listings are displayed below
 --------------------------------------------------""")
 
-getItems() #Avoids mass email spam when first startup to get a cache of already existing items
-           #Doesn't include deals already on the app posted before script startup, but shouldn't be an issue if there is a high uptime
-
 def main():
     while True:
-        getItems(mail=True, alert=True, printToConsole=True)
+        getItems(mail=True, alert=False, printToConsole=True)
         sleep(REFRESH_INTERVAL)
 
 main()
